@@ -5,6 +5,8 @@ html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .brandcloak-
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-custom-logo],
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-logo="true"],
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_db,
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_fb,
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"] {
   display: none !important;
 }
@@ -12,10 +14,10 @@ html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandc
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .brandcloak-target,
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-custom-logo],
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-logo="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .gb_fb img,
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"] {
-  filter: blur(8px) grayscale(30%) !important;
-  opacity: 0.75 !important;
+  filter: blur(7px) grayscale(30%) !important;
+  opacity: 0.8 !important;
   user-select: none !important;
   pointer-events: none !important;
   transition: filter 0.2s ease, opacity 0.2s ease;
@@ -35,6 +37,12 @@ html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandclo
   display: block !important;
   max-height: 100% !important;
   width: auto !important;
+}
+
+/* Ensure Google Workspace logo container neatly bounds the replacement */
+.gb_fb .brandcloak-stock-replacement {
+  max-width: 100% !important;
+  height: 100% !important;
 }
 
 /* When in generic mode, hide the original custom branding element that has been replaced */

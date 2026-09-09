@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BrandCloak - Stealth Commuter Privacy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Shields corporate branding and organization logos across Google Workspace and Jira to protect privacy in public spaces.",
   "icons": {
     "16": "icons/icon-16.png",

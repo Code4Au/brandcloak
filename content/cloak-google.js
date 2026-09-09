@@ -17,76 +17,72 @@
     const headers = document.querySelectorAll('#gb, header, [role="banner"]');
 
     headers.forEach(header => {
-      // 1. Search all images inside the Google Bar / header
-      const imgs = header.querySelectorAll('img');
+      // 1. Direct hit on Google Workspace enterprise logo containers:
+      // Google places the custom domain logo in .gb_db / .gb_fb or with logo.gif?service=google_gsuite
+      const specificLogoImgs = header.querySelectorAll(
+        '.gb_fb img, .gb_db img, img[src*="/ac/images/logo"], img[src*="service=google_gsuite"], img.gb_9c'
+      );
 
+      if (specificLogoImgs.length > 0) {
+        specificLogoImgs.forEach(img => {
+          targets.push({
+            img,
+            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.parentElement
+          });
+        });
+        return; // Exact match found!
+      }
+
+      // 2. Fallback: search all images in header for rectangular/custom branding
+      const imgs = header.querySelectorAll('img');
       imgs.forEach(img => {
         const rect = img.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(img);
 
-        // Check if this image is a standard user profile avatar:
-        // Avatars are circular (border-radius: 50%) and square (1:1 ratio, typically 28-40px)
+        // Skip user profile avatars (circular 50% border-radius or 1:1 square)
         const isCircularAvatar = computedStyle.borderRadius === '50%' ||
           (rect.width > 0 && Math.abs(rect.width - rect.height) <= 3 && rect.width <= 44 && !img.src.includes('logo'));
 
         if (isCircularAvatar) {
-          return; // Skip user avatar
+          return;
         }
 
-        // Check if image is standard Gmail/Google system logo on the top-left:
-        // Default Gmail logo has src like logo_gmail or alt="Gmail" on the left
+        // Skip standard Gmail logo on the top-left
         const isTopLeft = rect.left < window.innerWidth * 0.3;
         const isStandardGmailLogo = isTopLeft && (img.src.includes('logo_gmail') || img.src.includes('mail/rfr/'));
         if (isStandardGmailLogo) {
-          return; // Don't replace standard Gmail icon!
+          return;
         }
 
-        // Detect if this image is a corporate logo:
-        // Criteria A: Positioned on the right side of the header (where Google Workspace places enterprise logos)
         const isRightSide = rect.left > window.innerWidth * 0.35;
-
-        // Criteria B: Rectangular aspect ratio (Google custom logos are 320x132 or wide rectangular)
         const isRectangular = (img.naturalWidth > 0 && img.naturalWidth > img.naturalHeight * 1.15) ||
           (rect.width > rect.height * 1.15 && rect.width > 30);
-
-        // Criteria C: Specific URL patterns or alt tags used by enterprise branding
         const hasLogoUrl = /googleusercontent\.com|cpanel|\/images\/logo|gstatic\.com\/a\//i.test(img.src);
         const hasLogoAlt = /logo|brand|custom/i.test(img.alt || '') || /logo|brand/i.test(img.title || '');
 
-        // Criteria D: Specific class names
-        const hasGoogleCustomClass = img.classList.contains('gb_0c') || img.classList.contains('gb_7c');
-
-        if ((isRightSide && (isRectangular || hasLogoUrl || hasLogoAlt || hasGoogleCustomClass)) ||
-            (!isTopLeft && hasLogoUrl) ||
-            (isTopLeft && hasLogoUrl && !img.src.includes('logo_gmail'))) {
-          
-          // Find the enclosing pill / button container (e.g. the rounded pill on the top right)
-          let pillContainer = img.closest('a, [role="button"], div[class*="gb_"]') || img.parentElement;
-          if (pillContainer && pillContainer.tagName === 'HEADER' || pillContainer?.id === 'gb') {
-            pillContainer = img.parentElement;
-          }
-
+        if ((isRightSide && (isRectangular || hasLogoUrl || hasLogoAlt)) ||
+            (hasLogoUrl && !img.src.includes('logo_gmail'))) {
           targets.push({
             img,
-            pillContainer
-          });
-        }
-      });
-
-      // 2. Also check for elements using CSS background-image for corporate logos
-      const potentialBgElements = header.querySelectorAll('a, div, span');
-      potentialBgElements.forEach(el => {
-        const bg = window.getComputedStyle(el).backgroundImage;
-        if (bg && bg !== 'none' && (bg.includes('googleusercontent.com') || bg.includes('cpanel') || bg.includes('/logo'))) {
-          targets.push({
-            img: el,
-            pillContainer: el.parentElement
+            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.parentElement
           });
         }
       });
     });
 
-    return targets;
+    // Deduplicate by pill container so we NEVER insert duplicate stock icons
+    const seenContainers = new Set();
+    const uniqueTargets = [];
+
+    targets.forEach(item => {
+      const containerKey = item.pillContainer || item.img.parentElement;
+      if (!seenContainers.has(containerKey)) {
+        seenContainers.add(containerKey);
+        uniqueTargets.push(item);
+      }
+    });
+
+    return uniqueTargets;
   }
 
   // Identify corporate domain / organization text badges in header
@@ -129,51 +125,63 @@
     const settings = utils.getSettings();
     const active = isGoogleTargetEnabled();
 
-    // 1. Process custom corporate logos (both image and enclosing pill)
+    // 1. Process custom corporate logos
     const targets = findCustomGoogleLogos();
 
-    targets.forEach((item, index) => {
+    targets.forEach((item) => {
       const { img, pillContainer } = item;
+      const parent = img.parentElement;
 
       img.setAttribute('data-brandcloak-google-logo', 'true');
       if (pillContainer && pillContainer !== img) {
         pillContainer.setAttribute('data-brandcloak-google-pill', 'true');
       }
 
+      // Remove ANY existing duplicate/stale replacement elements in this container
+      if (parent) {
+        const existingReplacements = parent.querySelectorAll('.brandcloak-stock-replacement');
+        if (!active || settings.cloakStyle !== 'generic') {
+          existingReplacements.forEach(el => el.remove());
+        } else if (existingReplacements.length > 1) {
+          // Keep only one replacement
+          for (let i = 1; i < existingReplacements.length; i++) {
+            existingReplacements[i].remove();
+          }
+        }
+      }
+
       if (active) {
         if (settings.cloakStyle === 'generic') {
-          // In generic mode: replace the custom company logo with the official multicolor Google "G" SVG
+          // In generic mode: replace the custom company logo with ONLY the clean multicolor Google "G" icon
+          // Centered and sized to fit neatly inside the white box without overflowing onto user avatar
           const stockHtml = `
-            <div style="display: flex; align-items: center; gap: 6px; padding: 2px 6px;">
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-width: 24px; padding: 2px 4px;">
               ${utils.SVGS.googleG}
-              ${utils.SVGS.googleWorkspaceWordmark}
             </div>
           `;
-          utils.replaceWithStockElement(img, stockHtml, `google-top-logo-${index}`);
+          utils.replaceWithStockElement(img, stockHtml, 'google-top-logo');
 
-          // Hide any custom text inside the pill (e.g. company name)
+          // Hide any custom company text inside the pill
           if (pillContainer) {
-            pillContainer.querySelectorAll('span, div').forEach(txt => {
-              if (!txt.classList.contains('brandcloak-stock-replacement') && !txt.closest('.brandcloak-stock-replacement')) {
-                if (txt.textContent && txt.textContent.trim().length > 0 && !txt.textContent.includes('Google')) {
-                  txt.setAttribute('data-brandcloak-org-text', 'true');
-                }
+            pillContainer.querySelectorAll('span, div:not(.brandcloak-stock-replacement)').forEach(txt => {
+              if (txt.textContent && txt.textContent.trim().length > 0 && !txt.querySelector('svg')) {
+                txt.setAttribute('data-brandcloak-org-text', 'true');
               }
             });
           }
         } else {
-          // Blur or hidden mode: restore display so CSS filter/none takes over
+          // Blur or hidden mode: restore display so CSS filter/none takes over cleanly
           img.removeAttribute('data-brandcloak-replaced');
           img.style.display = '';
-          const replacement = img.parentElement?.querySelector(`[data-brandcloak-id="google-top-logo-${index}"]`);
-          if (replacement) replacement.style.display = 'none';
+          const replacement = parent?.querySelector('[data-brandcloak-id="google-top-logo"]');
+          if (replacement) replacement.remove();
         }
       } else {
         // Disabled: restore original
         img.removeAttribute('data-brandcloak-replaced');
         img.style.display = '';
-        const replacement = img.parentElement?.querySelector(`[data-brandcloak-id="google-top-logo-${index}"]`);
-        if (replacement) replacement.style.display = 'none';
+        const replacement = parent?.querySelector('[data-brandcloak-id="google-top-logo"]');
+        if (replacement) replacement.remove();
       }
     });
 
