@@ -31,7 +31,7 @@ BrandCloak prevents "shoulder surfers" and stickybeakers from easily identifying
 
 1. Clone or download this repository to your computer:
    ```bash
-   git clone git@github.com:danmiles/browser-extension-obsfucate-branding.git
+   git clone https://github.com/Code4Au/brandcloak.git
    ```
 2. Open Google Chrome and navigate to:
    ```text

@@ -93,7 +93,7 @@ The extension collects no user data, transmits no information over the internet,
 ## Privacy Policy
 
 **Privacy Policy URL** [RECOMMENDED]
-https://github.com/danmiles/browser-extension-obsfucate-branding/blob/main/PRIVACY.md
+https://github.com/Code4Au/brandcloak/blob/main/PRIVACY.md
 
 ### Privacy Statement
 BrandCloak does not collect, record, transmit, or monetize any user data, browsing history, personal identity, or webpage contents. All operations—including logo substitution, style masking, and title sanitization—are performed exclusively in client-side browser memory. User preferences are stored locally via Chrome's synchronized extension storage API.
@@ -107,9 +107,9 @@ BrandCloak does not collect, record, transmit, or monetize any user data, browsi
 ## Developer Info
 
 **Publisher Name**: BrandCloak
-**Contact Email**: dan@example.com
-**Support URL / Email**: https://github.com/danmiles/browser-extension-obsfucate-branding/issues
-**Homepage URL**: https://github.com/danmiles/browser-extension-obsfucate-branding
+**Contact Email**: dan@code4.com.au
+**Support URL / Email**: https://github.com/Code4Au/brandcloak/issues
+**Homepage URL**: https://github.com/Code4Au/brandcloak
 
 ## Version History
 
