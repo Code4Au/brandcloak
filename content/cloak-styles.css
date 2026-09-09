@@ -1,0 +1,55 @@
+/* BrandCloak - Core Declarative Styles (Injected at document_start) */
+
+/* Prevents flash of custom branding when BrandCloak is active */
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .brandcloak-target,
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-custom-logo],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-logo="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"] {
+  display: none !important;
+}
+
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .brandcloak-target,
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-custom-logo],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-logo="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"] {
+  filter: blur(8px) grayscale(30%) !important;
+  opacity: 0.75 !important;
+  user-select: none !important;
+  pointer-events: none !important;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* Generic stock replacement styles */
+.brandcloak-stock-replacement {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.brandcloak-stock-replacement svg {
+  display: block !important;
+  max-height: 100% !important;
+  width: auto !important;
+}
+
+/* When in generic mode, hide the original custom branding element that has been replaced */
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"] [data-brandcloak-replaced="true"] {
+  display: none !important;
+}
+
+/* Jira specific declarative rules */
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"] header a[href="/jira"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--header"] [data-testid*="logo"] img {
+  opacity: 0; /* Hidden while script replaces with stock SVG */
+}
+
+/* When hidden style, hide Jira instance name element if present */
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text] {
+  display: none !important;
+}
