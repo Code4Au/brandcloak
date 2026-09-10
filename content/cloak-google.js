@@ -131,23 +131,83 @@
     return uniqueTargets;
   }
 
-  // Identify corporate domain / organization text badges in header
+  // Identify corporate domain / organization text badges in header and account switcher popups
   function findGoogleOrgBadges() {
-    const badges = [];
-    const selectors = [
-      'header [aria-label*="managed by" i]',
-      '#gb [aria-label*="managed by" i]',
-      'header .gb_bb',
-      'header .gb_cb',
-      '#gb .gb_bb',
-      '#gb .gb_cb',
-      '#gb [data-hovercard-id*="@"]'
-    ];
+    const badges = new Set();
+    const settings = utils.getSettings();
 
-    for (const selector of selectors) {
-      document.querySelectorAll(selector).forEach(el => badges.push(el));
+    // 1. Standard Google header / account badge selectors
+    if (settings.maskTenantBadges) {
+      const selectors = [
+        'header [aria-label*="managed by" i]',
+        '#gb [aria-label*="managed by" i]',
+        'header .gb_bb',
+        'header .gb_cb',
+        '#gb .gb_bb',
+        '#gb .gb_cb',
+        '#gb [data-hovercard-id*="@"]'
+      ];
+
+      for (const selector of selectors) {
+        document.querySelectorAll(selector).forEach(el => badges.add(el));
+      }
     }
-    return badges;
+
+    // 2. Custom Brand Keywords matching anywhere on page/frame via TreeWalker
+    if (document.body) {
+      const brandElements = utils.findCustomBrandElements(document.body);
+      brandElements.forEach(el => badges.add(el));
+    }
+
+    // 3. Scan for "managed by", "admin console", and corporate email addresses
+    if (settings.maskTenantBadges && document.body) {
+      const isInsideFrame = window.self !== window.top || window.location.hostname === 'accounts.google.com';
+      // In the account switcher popup or header, search text nodes
+      const searchRoot = isInsideFrame ? document.body : (document.getElementById('gb') || document.querySelector('header') || document.querySelector('[role="dialog"]') || document.body);
+
+      try {
+        const textWalker = document.createTreeWalker(
+          searchRoot,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode(node) {
+              if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+              const val = node.nodeValue.trim();
+              if (!val || val.length > 100) return NodeFilter.FILTER_REJECT;
+
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              const tag = parent.tagName.toLowerCase();
+              if (tag === 'script' || tag === 'style' || tag === 'input' || tag === 'textarea') {
+                return NodeFilter.FILTER_REJECT;
+              }
+
+              // "Managed by..."
+              if (/managed\s+by/i.test(val)) return NodeFilter.FILTER_ACCEPT;
+              // "Admin console"
+              if (/admin\s+console/i.test(val)) return NodeFilter.FILTER_ACCEPT;
+              // Corporate email (non-gmail) in account switcher or header
+              if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !val.endsWith('@gmail.com') && !val.endsWith('@googlemail.com')) {
+                return NodeFilter.FILTER_ACCEPT;
+              }
+
+              return NodeFilter.FILTER_REJECT;
+            }
+          }
+        );
+
+        let node;
+        while ((node = textWalker.nextNode())) {
+          if (node.parentElement) {
+            badges.add(node.parentElement);
+          }
+        }
+      } catch (e) {
+        console.warn('[BrandCloak] TreeWalker error in Google badges:', e);
+      }
+    }
+
+    return Array.from(badges);
   }
 
   // Sanitize Google Workspace title
@@ -240,22 +300,34 @@
         el.remove();
       });
 
-      document.querySelectorAll('#gb [data-brandcloak-org-text], header [data-brandcloak-org-text]').forEach(el => {
+      document.querySelectorAll('[data-brandcloak-org-text]').forEach(el => {
         el.removeAttribute('data-brandcloak-org-text');
         el.style.display = '';
       });
     }
 
-    // 2. Process org badges (e.g. "managed by acmecorp.com")
+    // 2. Process org badges (e.g. "managed by acmecorp.com" and custom brands)
     const badges = findGoogleOrgBadges();
-    badges.forEach(badge => {
-      if (active && settings.maskTenantBadges) {
-        badge.setAttribute('data-brandcloak-org-text', 'true');
-      } else {
-        badge.removeAttribute('data-brandcloak-org-text');
-        badge.style.display = '';
+    const currentBadgesSet = new Set(badges);
+
+    // Clean up elements that are no longer matching or when defense is disabled
+    document.querySelectorAll('[data-brandcloak-org-text]').forEach(el => {
+      if (!active || !currentBadgesSet.has(el)) {
+        el.removeAttribute('data-brandcloak-org-text');
+        el.style.display = '';
       }
     });
+
+    if (active) {
+      badges.forEach(badge => {
+        badge.setAttribute('data-brandcloak-org-text', 'true');
+        if (settings.cloakStyle === 'generic') {
+          badge.style.display = 'none';
+        } else {
+          badge.style.display = '';
+        }
+      });
+    }
 
     // 3. Process Title
     if (active && settings.sanitizeTitles) {

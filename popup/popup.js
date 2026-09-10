@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const jiraToggle = document.getElementById('jiraToggle');
   const sanitizeTitlesToggle = document.getElementById('sanitizeTitlesToggle');
   const maskTenantBadgesToggle = document.getElementById('maskTenantBadgesToggle');
+  const customBrandsInput = document.getElementById('customBrandsInput');
 
   // OS detection for keyboard shortcut hint
   const isMac = navigator.userAgent.includes('Mac');
@@ -27,7 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     googleEnabled: true,
     jiraEnabled: true,
     sanitizeTitles: true,
-    maskTenantBadges: true
+    maskTenantBadges: true,
+    customBrands: ''
   };
 
   // Safe storage retrieval
@@ -108,6 +110,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Defenses
     sanitizeTitlesToggle.checked = settings.sanitizeTitles;
     maskTenantBadgesToggle.checked = settings.maskTenantBadges;
+    if (customBrandsInput && document.activeElement !== customBrandsInput) {
+      customBrandsInput.value = settings.customBrands || '';
+    }
   }
 
   // Bind Event Listeners
@@ -148,6 +153,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     settings.maskTenantBadges = maskTenantBadgesToggle.checked;
     await saveSettings();
   });
+
+  if (customBrandsInput) {
+    let brandDebounce = null;
+    customBrandsInput.addEventListener('input', () => {
+      settings.customBrands = customBrandsInput.value;
+      clearTimeout(brandDebounce);
+      brandDebounce = setTimeout(async () => {
+        await saveSettings();
+      }, 300);
+    });
+  }
 
   // Initial load
   await loadSettings();

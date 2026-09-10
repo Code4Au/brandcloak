@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BrandCloak - Stealth Commuter Privacy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Shields corporate branding and organization logos across Google Workspace and Jira to protect privacy in public spaces.",
   "icons": {
     "16": "icons/icon-16.png",
@@ -29,8 +29,12 @@
         "*://drive.google.com/*",
         "*://docs.google.com/*",
         "*://calendar.google.com/*",
-        "*://meet.google.com/*"
+        "*://meet.google.com/*",
+        "*://chat.google.com/*",
+        "*://admin.google.com/*",
+        "*://accounts.google.com/*"
       ],
+      "all_frames": true,
       "css": ["content/cloak-styles.css"],
       "js": ["content/common-utils.js", "content/cloak-google.js"],
       "run_at": "document_start"
@@ -38,8 +42,10 @@
     {
       "matches": [
         "*://*.atlassian.net/*",
-        "*://*.jira.com/*"
+        "*://*.jira.com/*",
+        "*://*.atlassian.com/*"
       ],
+      "all_frames": true,
       "css": ["content/cloak-styles.css"],
       "js": ["content/common-utils.js", "content/cloak-jira.js"],
       "run_at": "document_start"

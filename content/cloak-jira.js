@@ -72,27 +72,39 @@
 
   // Find Jira instance / tenant name text (e.g. "Acme Corp Jira" beside logo)
   function findJiraTenantNames() {
-    const results = [];
-    const selectors = [
-      '[data-testid="atlassian-navigation--instance-name"]',
-      '[data-testid="atlassian-navigation--site-title"]',
-      '[data-testid="atlassian-navigation--logo"] span',
-      '[data-testid="atlassian-navigation--logo"] + div span',
-      '[data-testid="atlassian-navigation--product-home--container"] + div',
-      '[data-testid="ContextualHeader-site-name"]',
-      '[data-testid="navigation-header-site-title"]'
-    ];
+    const results = new Set();
+    const settings = utils.getSettings();
 
-    for (const selector of selectors) {
-      document.querySelectorAll(selector).forEach(el => {
-        const text = el.textContent ? el.textContent.trim() : '';
-        // If it's the standard generic product label "JIRA", do not treat as a custom tenant name!
-        if (text.length > 0 && text.toUpperCase() !== 'JIRA') {
-          results.push(el);
-        }
-      });
+    // 1. Fixed Atlassian tenant / site title selectors
+    if (settings.maskTenantBadges) {
+      const selectors = [
+        '[data-testid="atlassian-navigation--instance-name"]',
+        '[data-testid="atlassian-navigation--site-title"]',
+        '[data-testid="atlassian-navigation--logo"] span',
+        '[data-testid="atlassian-navigation--logo"] + div span',
+        '[data-testid="atlassian-navigation--product-home--container"] + div',
+        '[data-testid="ContextualHeader-site-name"]',
+        '[data-testid="navigation-header-site-title"]'
+      ];
+
+      for (const selector of selectors) {
+        document.querySelectorAll(selector).forEach(el => {
+          const text = el.textContent ? el.textContent.trim() : '';
+          // If it's the standard generic product label "JIRA", do not treat as a custom tenant name!
+          if (text.length > 0 && text.toUpperCase() !== 'JIRA') {
+            results.add(el);
+          }
+        });
+      }
     }
-    return results;
+
+    // 2. Custom Brand Keywords matching across entire Jira UI (sidebar, project name, breadcrumbs, headers, etc.)
+    if (document.body) {
+      const brandElements = utils.findCustomBrandElements(document.body);
+      brandElements.forEach(el => results.add(el));
+    }
+
+    return Array.from(results);
   }
 
   // Sanitize Jira page titles (e.g. "[PROJ-123] Secret Task - Acme Corp - Jira" -> "[PROJ-123] Secret Task - Jira")
@@ -221,23 +233,35 @@
         el.removeAttribute('data-brandcloak-custom-logo');
         el.style.display = '';
       });
+
+      document.querySelectorAll('[data-brandcloak-org-text]').forEach(el => {
+        el.removeAttribute('data-brandcloak-org-text');
+        el.style.display = '';
+      });
     }
 
     // 2. Process Tenant / Instance Name Text
     const tenantTextElements = findJiraTenantNames();
-    tenantTextElements.forEach(el => {
-      if (active && settings.maskTenantBadges) {
+    const currentTenantSet = new Set(tenantTextElements);
+
+    // Clean up elements that are no longer matching or when defense is disabled
+    document.querySelectorAll('[data-brandcloak-org-text]').forEach(el => {
+      if (!active || !currentTenantSet.has(el)) {
+        el.removeAttribute('data-brandcloak-org-text');
+        el.style.display = '';
+      }
+    });
+
+    if (active) {
+      tenantTextElements.forEach(el => {
         el.setAttribute('data-brandcloak-org-text', 'true');
         if (settings.cloakStyle === 'generic') {
           el.style.display = 'none';
         } else {
           el.style.display = '';
         }
-      } else {
-        el.removeAttribute('data-brandcloak-org-text');
-        el.style.display = '';
-      }
-    });
+      });
+    }
 
     // 3. Process Title
     if (active && settings.sanitizeTitles) {

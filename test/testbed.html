@@ -39,6 +39,16 @@
         <label for="mockJiraToggle">Jira Cloud:</label>
         <input type="checkbox" id="mockJiraToggle" checked>
       </div>
+
+      <div class="control-item">
+        <label for="mockMaskBadges">Mask Badges:</label>
+        <input type="checkbox" id="mockMaskBadges" checked>
+      </div>
+
+      <div class="control-item" style="flex: 1; min-width: 220px;">
+        <label for="mockCustomBrands">Custom Brands:</label>
+        <input type="text" id="mockCustomBrands" value="GoGet, goget.com.au" placeholder="e.g. Google, google.com" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 13px; width: 100%;">
+      </div>
     </div>
   </div>
 
@@ -99,6 +109,35 @@
                 <span class="brand-acme-text" style="color: #0f172a; font-size: 12px; font-weight: 800;">CODE 4</span>
               </div>
             </div>
+
+            <!-- SIMULATED GOOGLE ACCOUNT SWITCHER DROPDOWN (As seen in production) -->
+            <div class="google-account-popup-mock" role="dialog" aria-label="Google Account: Dan Miles" style="position: absolute; right: 20px; top: 110px; width: 300px; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); padding: 16px; z-index: 50; border: 1px solid #e2e8f0; color: #1e293b; font-family: Roboto, sans-serif;">
+              <div style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Account Switcher (Live Test)</div>
+              
+              <!-- Managed By Badge -->
+              <div class="gb_bb" style="background: #f1f5f9; padding: 6px 10px; border-radius: 8px; font-size: 12px; color: #334155; font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>🏢</span>
+                <span>Managed by goget.com.au</span>
+              </div>
+
+              <!-- Primary Account -->
+              <div class="account-card" style="display: flex; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: #0284c7; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">DM</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 13px; color: #0f172a;">Dan Miles</div>
+                  <div style="font-size: 12px; color: #64748b;">dan@goget.com.au</div>
+                </div>
+              </div>
+
+              <!-- Secondary Account -->
+              <div class="account-card" style="display: flex; gap: 12px; align-items: center; padding-top: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #64748b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">GS</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 12px; color: #0f172a;">GoGet STAGE</div>
+                  <div style="font-size: 11px; color: #64748b;">admin.stage@goget.com.au</div>
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -134,7 +173,7 @@
         <div class="browser-tab-bar">
           <div class="browser-tab active">
             <span class="tab-favicon">🔷</span>
-            <span class="tab-title-text" id="jiraTabTitle">[PAY-4029] Encrypt transaction headers - Code 4 Jira</span>
+            <span class="tab-title-text" id="jiraTabTitle">[PAY-4029] Encrypt transaction headers - GoGet Jira</span>
           </div>
         </div>
 
@@ -156,7 +195,7 @@
             </div>
 
             <!-- Jira instance name or product title -->
-            <span class="jira-instance-title" data-testid="atlassian-navigation--site-title" data-brandcloak-org-text="true" style="color: #deebff; font-weight: 700; margin-left: 8px;">JIRA</span>
+            <span class="jira-instance-title" data-testid="atlassian-navigation--site-title" style="color: #deebff; font-weight: 700; margin-left: 8px;">GoGet Jira</span>
 
             <div class="jira-nav-links">
               <span class="nav-item">Your work</span>

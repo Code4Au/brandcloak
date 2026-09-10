@@ -35,7 +35,8 @@
     googleEnabled: true,
     jiraEnabled: true,
     sanitizeTitles: true,
-    maskTenantBadges: true
+    maskTenantBadges: true,
+    customBrands: ''
   };
 
   // Apply root attributes to documentElement so CSS rules match immediately
@@ -123,6 +124,121 @@
     }
   }
 
+  // Custom Brand Keywords matching & scrubbing
+  function getCustomBrandKeywords() {
+    const raw = currentSettings.customBrands || '';
+    return raw
+      .split(',')
+      .map(k => k.trim())
+      .filter(k => k.length > 0);
+  }
+
+  function cleanCustomBrandsFromTitle(title) {
+    if (!title) return title;
+    const keywords = getCustomBrandKeywords();
+    if (keywords.length === 0) return title;
+
+    let cleaned = title;
+    for (const kw of keywords) {
+      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // 1. If keyword is part of an email in title (e.g. "dan@goget.com.au" or "admin@goget.com"), strip entire email
+      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*[^\\s@]+@(?:[^\\s@]*\\.)?${escaped}\\b\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
+
+      // 2. Match brand keyword followed immediately by Jira, e.g. " - GoGet Jira" -> " - Jira"
+      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*${escaped}\\s+Jira\\b`, 'gi'), ' - Jira');
+
+      // 3. Match delimited brand keyword, e.g. " - GoGet - " or " - GoGet" or "GoGet - "
+      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*\\b${escaped}\\b\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
+      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*${escaped}\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
+    }
+
+    // Clean up duplicate separators and whitespace
+    cleaned = cleaned
+      .replace(/\s*-\s*-\s*/g, ' - ')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^\s*[-|·•/:]+\s*/, '')
+      .replace(/\s*[-|·•/:]+\s*$/, '')
+      .trim();
+
+    return cleaned;
+  }
+
+  function matchesCustomBrand(text) {
+    if (!text || typeof text !== 'string') return false;
+    const keywords = getCustomBrandKeywords();
+    if (keywords.length === 0) return false;
+    const lower = text.toLowerCase();
+    return keywords.some(kw => lower.includes(kw.toLowerCase()));
+  }
+
+  // Universal TreeWalker to accurately find specific text-bearing elements matching custom brand keywords
+  function findCustomBrandElements(root) {
+    if (!root) root = document.body;
+    if (!root) return [];
+
+    const keywords = getCustomBrandKeywords();
+    if (keywords.length === 0) return [];
+
+    const elements = new Set();
+
+    // 1. Check text nodes via TreeWalker
+    try {
+      const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode(node) {
+            if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+            const val = node.nodeValue.trim();
+            if (val.length === 0) return NodeFilter.FILTER_REJECT;
+
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+
+            // Don't blur code inputs or active editors
+            const tag = parent.tagName.toLowerCase();
+            if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'input' || tag === 'textarea') {
+              return NodeFilter.FILTER_REJECT;
+            }
+
+            if (parent.isContentEditable || parent.closest('[contenteditable="true"], .ProseMirror')) {
+              return NodeFilter.FILTER_REJECT;
+            }
+
+            if (matchesCustomBrand(val)) {
+              return NodeFilter.FILTER_ACCEPT;
+            }
+            return NodeFilter.FILTER_REJECT;
+          }
+        }
+      );
+
+      let textNode;
+      while ((textNode = walker.nextNode())) {
+        const parent = textNode.parentElement;
+        if (parent) {
+          elements.add(parent);
+        }
+      }
+    } catch (e) {
+      console.warn('[BrandCloak] TreeWalker error:', e);
+    }
+
+    // 2. Also check elements with aria-label or title matching keywords
+    for (const kw of keywords) {
+      try {
+        root.querySelectorAll(`[aria-label*="${kw}" i], [title*="${kw}" i]`).forEach(el => {
+          if (el.children.length <= 2 && !el.closest('[contenteditable="true"]')) {
+            elements.add(el);
+          }
+        });
+      } catch (e) {}
+    }
+
+    return Array.from(elements);
+  }
+
   // Title sanitizer observer
   let isSanitizingTitle = false;
 
@@ -132,8 +248,10 @@
     const rawTitle = document.title;
     if (!rawTitle) return;
 
-    const cleaned = cleanerFn(rawTitle);
-    if (cleaned !== rawTitle) {
+    let cleaned = cleanerFn ? cleanerFn(rawTitle) : rawTitle;
+    cleaned = cleanCustomBrandsFromTitle(cleaned);
+
+    if (cleaned && cleaned !== rawTitle) {
       isSanitizingTitle = true;
       document.title = cleaned;
       setTimeout(() => { isSanitizingTitle = false; }, 50);
@@ -162,6 +280,10 @@
     applyRootAttributes,
     replaceWithStockElement,
     initTitleObserver,
-    sanitizeTitle
+    sanitizeTitle,
+    getCustomBrandKeywords,
+    cleanCustomBrandsFromTitle,
+    matchesCustomBrand,
+    findCustomBrandElements
   };
 })();
