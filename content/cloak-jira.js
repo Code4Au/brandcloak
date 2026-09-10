@@ -21,18 +21,22 @@
       '[data-testid="atlassian-navigation--product-home--icon"] img',
       '[data-testid="atlassian-navigation--product-home--container"] img',
       '[data-testid="atlassian-navigation--logo"] img',
-      'a[href="/jira"] img',
-      'a[href^="/jira"] img',
-      'header nav [data-testid*="logo"] img',
+      'a[aria-label*="homepage" i][href*="/jira"] img',
+      'header nav a[href="/jira"] img',
       '.jira-custom',
       '[data-brandcloak-custom-logo]'
     ];
 
     for (const selector of selectors) {
       document.querySelectorAll(selector).forEach(el => {
-        if (!el.closest('.brandcloak-stock-replacement')) {
-          results.add(el);
+        if (el.closest('.brandcloak-stock-replacement')) {
+          return;
         }
+        // Strictly exclude breadcrumbs, sidebar, side navigation, main content
+        if (el.closest('[aria-label="Breadcrumbs"], [data-testid*="sidebar"], aside, main, .jira-ticket-view')) {
+          return;
+        }
+        results.add(el);
       });
     }
     return Array.from(results);
@@ -43,16 +47,22 @@
     const results = new Set();
     const selectors = [
       '[data-testid="atlassian-navigation--product-home--container"] a',
+      'a[data-testid="atlassian-navigation--product-home--container"]',
       '[data-testid="atlassian-navigation--product-home--container"]',
-      'a[href="/jira"]',
-      'a[href^="/jira"]',
-      '[data-testid="atlassian-navigation--logo"]',
       'a[data-testid="atlassian-navigation--logo-button"]',
-      'header nav a[href="/jira"]'
+      '[data-testid="atlassian-navigation--logo"] a',
+      '[data-testid="atlassian-navigation--logo"]',
+      'header nav a[href="/jira"]',
+      'header a[href="/jira"]',
+      'a[aria-label*="homepage" i][href*="/jira"]'
     ];
 
     for (const selector of selectors) {
       document.querySelectorAll(selector).forEach(el => {
+        // Strictly exclude breadcrumbs, sidebar, side-navigation, main ticket view
+        if (el.closest('[aria-label="Breadcrumbs"], [data-testid*="sidebar"], aside, main, .jira-ticket-view')) {
+          return;
+        }
         const anchor = el.tagName === 'A' ? el : el.querySelector('a');
         results.add(anchor || el);
       });
@@ -68,13 +78,16 @@
       '[data-testid="atlassian-navigation--site-title"]',
       '[data-testid="atlassian-navigation--logo"] span',
       '[data-testid="atlassian-navigation--logo"] + div span',
+      '[data-testid="atlassian-navigation--product-home--container"] + div',
       '[data-testid="ContextualHeader-site-name"]',
       '[data-testid="navigation-header-site-title"]'
     ];
 
     for (const selector of selectors) {
       document.querySelectorAll(selector).forEach(el => {
-        if (el.textContent && el.textContent.trim().length > 0) {
+        const text = el.textContent ? el.textContent.trim() : '';
+        // If it's the standard generic product label "JIRA", do not treat as a custom tenant name!
+        if (text.length > 0 && text.toUpperCase() !== 'JIRA') {
           results.push(el);
         }
       });
@@ -110,7 +123,6 @@
 
     const customLogos = findJiraCustomLogoElements();
     const containers = findJiraProductHomeContainers();
-    const allStockReplacements = document.querySelectorAll('.brandcloak-stock-replacement[data-brandcloak-id*="jira"]');
 
     if (active) {
       if (settings.cloakStyle === 'generic') {
@@ -123,6 +135,23 @@
 
         // Mount / show stock replacement inside each product home container
         containers.forEach((container, index) => {
+          // Check if Atlassian already renders a native "JIRA" text element beside this container
+          const homeContainer = container.closest('[data-testid*="product-home"]') || container;
+          const nextSibling = homeContainer.nextElementSibling ||
+            homeContainer.parentElement?.querySelector('[data-testid="atlassian-navigation--product-home--container"] + div');
+          const siblingText = (nextSibling && nextSibling.textContent) ? nextSibling.textContent.trim() : '';
+          const hasNativeJiraLabel = siblingText.toUpperCase() === 'JIRA';
+
+          // If native "JIRA" label already exists beside the logo, don't duplicate the wordmark!
+          const stockHtml = hasNativeJiraLabel
+            ? `<div style="display: flex; align-items: center; justify-content: center; padding: 4px 6px; cursor: pointer;">
+                 ${utils.SVGS.jiraCompass}
+               </div>`
+            : `<div style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; cursor: pointer;">
+                 ${utils.SVGS.jiraCompass}
+                 ${utils.SVGS.jiraWordmark}
+               </div>`;
+
           // Hide any non-replacement children of the container
           Array.from(container.children).forEach(child => {
             if (!child.classList.contains('brandcloak-stock-replacement')) {
@@ -136,22 +165,18 @@
             replacement = document.createElement('div');
             replacement.className = 'brandcloak-stock-replacement';
             replacement.setAttribute('data-brandcloak-id', `jira-stock-logo-${index}`);
-            replacement.innerHTML = `
-              <div style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; cursor: pointer;">
-                ${utils.SVGS.jiraCompass}
-                ${utils.SVGS.jiraWordmark}
-              </div>
-            `;
+            replacement.innerHTML = stockHtml;
             container.prepend(replacement);
           } else {
-            replacement.style.display = 'inline-flex';
+            replacement.innerHTML = stockHtml;
+            replacement.style.setProperty('display', 'inline-flex', 'important');
           }
         });
       } else {
         // --- 2. Frosted Blur or Hidden Mode ---
-        // Hide any stock replacements
-        allStockReplacements.forEach(rep => {
-          rep.style.display = 'none';
+        // Completely remove any stock replacements from DOM to guarantee no duplicate logos!
+        document.querySelectorAll('.brandcloak-stock-replacement[data-brandcloak-id*="jira"]').forEach(rep => {
+          rep.remove();
         });
 
         // Restore container child elements so they can be blurred/hidden
@@ -177,8 +202,8 @@
       }
     } else {
       // --- 3. Disabled / Paused Mode: Revert everything ---
-      allStockReplacements.forEach(rep => {
-        rep.style.display = 'none';
+      document.querySelectorAll('.brandcloak-stock-replacement[data-brandcloak-id*="jira"]').forEach(rep => {
+        rep.remove();
       });
 
       containers.forEach(container => {

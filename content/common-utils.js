@@ -118,7 +118,7 @@
       targetEl.removeAttribute('data-brandcloak-replaced');
       targetEl.style.display = '';
       if (replacement) {
-        replacement.style.display = 'none';
+        replacement.remove();
       }
     }
   }

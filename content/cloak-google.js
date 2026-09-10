@@ -11,60 +11,106 @@
     return settings.enabled && settings.googleEnabled;
   }
 
-  // Identify Google Workspace corporate logo candidates
+  // Verify if an image is part of standard Google product branding (Gmail, Drive, Docs, etc.)
+  function isStandardGoogleProductLogo(img) {
+    if (!img) return true;
+
+    const src = (img.src || '').toLowerCase();
+    const alt = (img.alt || '').toLowerCase();
+    const title = (img.title || '').toLowerCase();
+    const ariaLabel = (img.getAttribute('aria-label') || '').toLowerCase();
+
+    // Standard Google product identifiers - NEVER cloak standard product identity
+    const productKeywords = [
+      'drive', 'gmail', 'docs', 'sheets', 'slides', 'calendar',
+      'meet', 'keep', 'forms', 'contacts', 'chat', 'mail/rfr',
+      'logo_gmail', 'product/1x/drive', 'branding/product',
+      'google_gemini', 'assistant'
+    ];
+
+    for (const kw of productKeywords) {
+      if (src.includes(kw) || alt.includes(kw) || title.includes(kw) || ariaLabel.includes(kw)) {
+        return true;
+      }
+    }
+
+    const parentAnchor = img.closest('a');
+    if (parentAnchor) {
+      const anchorHref = (parentAnchor.href || '').toLowerCase();
+      const anchorLabel = (parentAnchor.getAttribute('aria-label') || '').toLowerCase();
+      const anchorTitle = (parentAnchor.getAttribute('title') || '').toLowerCase();
+      for (const kw of productKeywords) {
+        if (anchorHref.includes(kw) || anchorLabel.includes(kw) || anchorTitle.includes(kw)) {
+          return true;
+        }
+      }
+      const anchorRect = parentAnchor.getBoundingClientRect();
+      if (anchorRect.left < window.innerWidth * 0.4) {
+        return true;
+      }
+    }
+
+    // Top-left elements (< 40% viewport width) are strictly standard Google product navigation
+    const rect = img.getBoundingClientRect();
+    if (rect.left < window.innerWidth * 0.4) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Identify Google Workspace corporate logo candidates (strictly top-right enterprise branding)
   function findCustomGoogleLogos() {
     const targets = [];
     const headers = document.querySelectorAll('#gb, header, [role="banner"]');
 
     headers.forEach(header => {
       // 1. Direct hit on Google Workspace enterprise logo containers:
-      // Google places the custom domain logo in .gb_db / .gb_fb or with logo.gif?service=google_gsuite
       const specificLogoImgs = header.querySelectorAll(
-        '.gb_fb img, .gb_db img, img[src*="/ac/images/logo"], img[src*="service=google_gsuite"], img.gb_9c'
+        '.gb_fb img, .gb_db img, .gb_0c img, .gb_1c img, img[src*="/ac/images/logo"], img[src*="service=google_gsuite"], img.gb_9c'
       );
 
-      if (specificLogoImgs.length > 0) {
-        specificLogoImgs.forEach(img => {
+      specificLogoImgs.forEach(img => {
+        if (!isStandardGoogleProductLogo(img)) {
           targets.push({
             img,
-            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.parentElement
+            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.closest('.gb_0c') || img.closest('.gb_1c') || img.parentElement
           });
-        });
-        return; // Exact match found!
-      }
+        }
+      });
 
-      // 2. Fallback: search all images in header for rectangular/custom branding
+      // 2. Search images in right section of header for custom branding
       const imgs = header.querySelectorAll('img');
       imgs.forEach(img => {
+        if (isStandardGoogleProductLogo(img)) {
+          return;
+        }
+
         const rect = img.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(img);
 
-        // Skip user profile avatars (circular 50% border-radius or 1:1 square)
+        // Skip user profile avatars (circular or small square avatar)
         const isCircularAvatar = computedStyle.borderRadius === '50%' ||
-          (rect.width > 0 && Math.abs(rect.width - rect.height) <= 3 && rect.width <= 44 && !img.src.includes('logo'));
-
+          (rect.width > 0 && Math.abs(rect.width - rect.height) <= 4 && rect.width <= 44 && !img.src.includes('logo'));
         if (isCircularAvatar) {
           return;
         }
 
-        // Skip standard Gmail logo on the top-left
-        const isTopLeft = rect.left < window.innerWidth * 0.3;
-        const isStandardGmailLogo = isTopLeft && (img.src.includes('logo_gmail') || img.src.includes('mail/rfr/'));
-        if (isStandardGmailLogo) {
+        // Must be strictly on the right section of the screen
+        const isRightSide = rect.left > window.innerWidth * 0.4;
+        if (!isRightSide) {
           return;
         }
 
-        const isRightSide = rect.left > window.innerWidth * 0.35;
         const isRectangular = (img.naturalWidth > 0 && img.naturalWidth > img.naturalHeight * 1.15) ||
           (rect.width > rect.height * 1.15 && rect.width > 30);
         const hasLogoUrl = /googleusercontent\.com|cpanel|\/images\/logo|gstatic\.com\/a\//i.test(img.src);
         const hasLogoAlt = /logo|brand|custom/i.test(img.alt || '') || /logo|brand/i.test(img.title || '');
 
-        if ((isRightSide && (isRectangular || hasLogoUrl || hasLogoAlt)) ||
-            (hasLogoUrl && !img.src.includes('logo_gmail'))) {
+        if (isRectangular || hasLogoUrl || hasLogoAlt) {
           targets.push({
             img,
-            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.parentElement
+            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.closest('.gb_0c') || img.closest('.gb_1c') || img.parentElement
           });
         }
       });
@@ -128,32 +174,30 @@
     // 1. Process custom corporate logos
     const targets = findCustomGoogleLogos();
 
-    targets.forEach((item) => {
-      const { img, pillContainer } = item;
-      const parent = img.parentElement;
+    if (active) {
+      targets.forEach((item) => {
+        const { img, pillContainer } = item;
+        const parent = img.parentElement;
 
-      img.setAttribute('data-brandcloak-google-logo', 'true');
-      if (pillContainer && pillContainer !== img) {
-        pillContainer.setAttribute('data-brandcloak-google-pill', 'true');
-      }
+        img.setAttribute('data-brandcloak-google-logo', 'true');
+        if (pillContainer && pillContainer !== img) {
+          pillContainer.setAttribute('data-brandcloak-google-pill', 'true');
+        }
 
-      // Remove ANY existing duplicate/stale replacement elements in this container
-      if (parent) {
-        const existingReplacements = parent.querySelectorAll('.brandcloak-stock-replacement');
-        if (!active || settings.cloakStyle !== 'generic') {
-          existingReplacements.forEach(el => el.remove());
-        } else if (existingReplacements.length > 1) {
-          // Keep only one replacement
-          for (let i = 1; i < existingReplacements.length; i++) {
-            existingReplacements[i].remove();
+        // Remove duplicate / stale replacements
+        if (parent) {
+          const existingReplacements = parent.querySelectorAll('.brandcloak-stock-replacement');
+          if (settings.cloakStyle !== 'generic') {
+            existingReplacements.forEach(el => el.remove());
+          } else if (existingReplacements.length > 1) {
+            for (let i = 1; i < existingReplacements.length; i++) {
+              existingReplacements[i].remove();
+            }
           }
         }
-      }
 
-      if (active) {
         if (settings.cloakStyle === 'generic') {
-          // In generic mode: replace the custom company logo with ONLY the clean multicolor Google "G" icon
-          // Centered and sized to fit neatly inside the white box without overflowing onto user avatar
+          // Generic mode: replace custom logo with clean multicolor Google "G" icon
           const stockHtml = `
             <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-width: 24px; padding: 2px 4px;">
               ${utils.SVGS.googleG}
@@ -161,7 +205,6 @@
           `;
           utils.replaceWithStockElement(img, stockHtml, 'google-top-logo');
 
-          // Hide any custom company text inside the pill
           if (pillContainer) {
             pillContainer.querySelectorAll('span, div:not(.brandcloak-stock-replacement)').forEach(txt => {
               if (txt.textContent && txt.textContent.trim().length > 0 && !txt.querySelector('svg')) {
@@ -170,20 +213,38 @@
             });
           }
         } else {
-          // Blur or hidden mode: restore display so CSS filter/none takes over cleanly
+          // Blur or hidden mode
           img.removeAttribute('data-brandcloak-replaced');
           img.style.display = '';
           const replacement = parent?.querySelector('[data-brandcloak-id="google-top-logo"]');
           if (replacement) replacement.remove();
         }
-      } else {
-        // Disabled: restore original
+      });
+    } else {
+      // Disabled: cleanly restore original state and remove all injected attributes
+      document.querySelectorAll('[data-brandcloak-google-logo]').forEach(img => {
+        img.removeAttribute('data-brandcloak-google-logo');
         img.removeAttribute('data-brandcloak-replaced');
         img.style.display = '';
-        const replacement = parent?.querySelector('[data-brandcloak-id="google-top-logo"]');
-        if (replacement) replacement.remove();
-      }
-    });
+      });
+
+      document.querySelectorAll('[data-brandcloak-google-pill]').forEach(pill => {
+        pill.removeAttribute('data-brandcloak-google-pill');
+        pill.querySelectorAll('[data-brandcloak-org-text]').forEach(txt => {
+          txt.removeAttribute('data-brandcloak-org-text');
+          txt.style.display = '';
+        });
+      });
+
+      document.querySelectorAll('.brandcloak-stock-replacement[data-brandcloak-id="google-top-logo"]').forEach(el => {
+        el.remove();
+      });
+
+      document.querySelectorAll('#gb [data-brandcloak-org-text], header [data-brandcloak-org-text]').forEach(el => {
+        el.removeAttribute('data-brandcloak-org-text');
+        el.style.display = '';
+      });
+    }
 
     // 2. Process org badges (e.g. "managed by acmecorp.com")
     const badges = findGoogleOrgBadges();
@@ -192,6 +253,7 @@
         badge.setAttribute('data-brandcloak-org-text', 'true');
       } else {
         badge.removeAttribute('data-brandcloak-org-text');
+        badge.style.display = '';
       }
     });
 

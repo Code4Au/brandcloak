@@ -281,6 +281,13 @@ input:checked + .slider:before {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+.style-grid.disabled {
+  opacity: 0.4;
+  filter: grayscale(40%);
+  pointer-events: none;
 }
 
 .style-btn {
@@ -296,6 +303,11 @@ input:checked + .slider:before {
   cursor: pointer;
   color: var(--text-secondary);
   transition: all 0.2s ease;
+}
+
+.style-btn:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .style-btn:hover {

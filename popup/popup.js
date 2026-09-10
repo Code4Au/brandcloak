@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  const styleGrid = document.getElementById('styleGrid');
+
   // Sync UI components to settings object
   function renderUI() {
     // Master Toggle
@@ -71,10 +73,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       statusPill.classList.add('active');
       statusText.textContent = 'ACTIVE';
       heroCard.classList.remove('disabled');
+      if (styleGrid) {
+        styleGrid.classList.remove('disabled');
+      }
+      styleButtons.forEach(btn => {
+        btn.disabled = false;
+      });
     } else {
       statusPill.classList.remove('active');
       statusText.textContent = 'PAUSED';
       heroCard.classList.add('disabled');
+      if (styleGrid) {
+        styleGrid.classList.add('disabled');
+      }
+      styleButtons.forEach(btn => {
+        btn.disabled = true;
+      });
     }
 
     // Style buttons
@@ -105,6 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   styleButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (!settings.enabled) return;
       const chosenStyle = btn.getAttribute('data-style');
       if (chosenStyle) {
         settings.cloakStyle = chosenStyle;

@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateMockState() {
     const enabled = mockStealthToggle.checked;
+    mockStyleSelect.disabled = !enabled;
     const style = mockStyleSelect.value;
     const googleEnabled = mockGoogleToggle.checked;
     const jiraEnabled = mockJiraToggle.checked;

@@ -1,33 +1,40 @@
 /* BrandCloak - Core Declarative Styles (Injected at document_start) */
 
-/* Prevents flash of custom branding when BrandCloak is active */
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .brandcloak-target,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-custom-logo],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-logo="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-pill="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_db,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_fb,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"],
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--container"] a img,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] a[href="/jira"] img {
+/* Google Workspace Hidden mode */
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-logo="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="hidden"] .gb_db,
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="hidden"] .gb_fb,
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="hidden"] #gb [data-brandcloak-org-text="true"],
+
+/* Jira Hidden mode */
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-brandcloak-custom-logo],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-testid="atlassian-navigation--product-home--icon"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-testid="atlassian-navigation--product-home--container"] a img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] a[href="/jira"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"] {
   display: none !important;
 }
 
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .brandcloak-target,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-custom-logo],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-logo="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .gb_fb img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"] img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"],
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"] img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--container"] a img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] a[href="/jira"] img {
+/* Google Workspace Blur mode */
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="blur"] [data-brandcloak-google-logo="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="blur"] [data-brandcloak-google-pill="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="blur"] .gb_fb img,
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="blur"] .gb_db img,
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="blur"] #gb [data-brandcloak-org-text="true"],
+
+/* Jira Blur mode */
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-brandcloak-custom-logo],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--product-home--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--product-home--icon"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--product-home--icon"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--product-home--container"] a img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] a[href="/jira"] img,
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"] {
   filter: blur(7px) grayscale(30%) !important;
   opacity: 0.8 !important;
   user-select: none !important;
@@ -35,14 +42,19 @@ html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloa
   transition: filter 0.2s ease, opacity 0.2s ease;
 }
 
-/* Generic stock replacement styles */
-.brandcloak-stock-replacement {
+/* Generic stock replacement styles - strictly visible only in generic mode */
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"] .brandcloak-stock-replacement {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   vertical-align: middle !important;
   position: relative !important;
   z-index: 10 !important;
+}
+
+html:not([data-brandcloak-style="generic"]) .brandcloak-stock-replacement,
+html[data-brandcloak-active="false"] .brandcloak-stock-replacement {
+  display: none !important;
 }
 
 .brandcloak-stock-replacement svg {
@@ -57,10 +69,13 @@ html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloa
   height: 100% !important;
 }
 
-/* When in generic mode, hide the original custom branding element that has been replaced */
-html[data-brandcloak-active="true"][data-brandcloak-style="generic"] [data-brandcloak-replaced="true"],
-html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
-html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"] {
+/* When in generic mode, hide the original custom branding elements */
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="generic"] [data-brandcloak-google-logo="true"][data-brandcloak-replaced="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="generic"] .gb_fb [data-brandcloak-replaced="true"],
+html[data-brandcloak-active="true"][data-brandcloak-google="true"][data-brandcloak-style="generic"] .gb_db [data-brandcloak-replaced="true"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="generic"] [data-brandcloak-replaced="true"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="generic"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-jira="true"][data-brandcloak-style="generic"] [data-testid="atlassian-navigation--product-home--icon"] {
   display: none !important;
 }
 
