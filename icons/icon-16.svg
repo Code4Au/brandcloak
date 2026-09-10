@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <defs>
+    <linearGradient id="bg16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e172e"/>
+      <stop offset="100%" stop-color="#060b17"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="16" height="16" rx="3.5" fill="url(#bg16)"/>
+  
+  <!-- Shield outline -->
+  <path d="M8 2.2L3.2 4.6v4.2c0 3.8 2.6 6.2 4.8 7 2.2-.8 4.8-3.2 4.8-7V4.6L8 2.2z" 
+        fill="#0284c7" 
+        fill-opacity="0.25"
+        stroke="url(#shieldGrad16)" 
+        stroke-width="1.3" 
+        stroke-linejoin="round"/>
+
+  <!-- Visor slits -->
+  <line x1="5.5" y1="7.2" x2="10.5" y2="7.2" stroke="#38bdf8" stroke-width="1.3" stroke-linecap="round"/>
+  <line x1="6.2" y1="9.5" x2="9.8" y2="9.5" stroke="#38bdf8" stroke-width="1.3" stroke-linecap="round"/>
+</svg>

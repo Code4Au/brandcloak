@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e172e"/>
+      <stop offset="100%" stop-color="#060b17"/>
+    </linearGradient>
+
+    <!-- Border Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <!-- Shield Outline Gradient -->
+    <linearGradient id="shieldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <!-- Shield Inner Fill Gradient -->
+    <linearGradient id="shieldFill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.14"/>
+    </linearGradient>
+
+    <!-- Subtle Radial Glow Behind Shield -->
+    <radialGradient id="ambientGlow" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dark Squircle Background -->
+  <rect x="2" y="2" width="124" height="124" rx="28" ry="28" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="2"/>
+
+  <!-- Ambient Glow -->
+  <circle cx="64" cy="62" r="46" fill="url(#ambientGlow)"/>
+
+  <!-- BrandCloak Shield Group -->
+  <g transform="translate(13.6, 17.8) scale(4.2)">
+    <!-- Shield Body -->
+    <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z" 
+          fill="url(#shieldFill)" 
+          stroke="url(#shieldStroke)" 
+          stroke-width="1.85" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- Slits / Visors -->
+    <path d="M8 11h8" stroke="#38bdf8" stroke-width="1.85" stroke-linecap="round"/>
+    <path d="M9 14h6" stroke="#38bdf8" stroke-width="1.85" stroke-linecap="round"/>
+  </g>
+</svg>

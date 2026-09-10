@@ -45,19 +45,25 @@ English
 
 ## Graphics & Assets
 
-| Asset | Dimensions | Status | Filename |
-|-------|-----------|--------|----------|
-| Store Icon [REQUIRED] | 128×128 PNG | ✅ Ready | icons/icon-128.png |
-| Screenshot 1 [REQUIRED] | 1280×800 | ⬜ Not created | screenshots/screen1-google-cloak.png |
-| Screenshot 2 [RECOMMENDED] | 1280×800 | ⬜ Not created | screenshots/screen2-jira-cloak.png |
-| Screenshot 3 [RECOMMENDED] | 1280×800 | ⬜ Not created | screenshots/screen3-popup-settings.png |
-| Small Promo Tile [RECOMMENDED] | 440×280 | ⬜ Not created | promo/tile-440x280.png |
-| Marquee Promo Tile | 1400×560 | ⬜ Not created | promo/marquee-1400x560.png |
+| Asset | Dimensions | Specs | Status | Filename |
+|-------|-----------|-------|--------|----------|
+| Store Icon [REQUIRED] | 128×128 | 24-bit PNG | ✅ Ready | `icons/icon-128.png` |
+| Screenshot 1 [REQUIRED] | 1280×800 | 24-bit PNG (no alpha) | ✅ Ready | `screenshots/screen1-google-cloak.png` |
+| Screenshot 2 [RECOMMENDED] | 1280×800 | 24-bit PNG (no alpha) | ✅ Ready | `screenshots/screen2-jira-cloak.png` |
+| Screenshot 3 [RECOMMENDED] | 1280×800 | 24-bit PNG (no alpha) | ✅ Ready | `screenshots/screen3-popup-settings.png` |
+| Screenshot 4 [RECOMMENDED] | 1280×800 | 24-bit PNG (no alpha) | ✅ Ready | `screenshots/screen4-brand-keywords.png` |
+| Screenshot 5 [RECOMMENDED] | 1280×800 | 24-bit PNG (no alpha) | ✅ Ready | `screenshots/screen5-privacy-guarantee.png` |
+| Small Promo Tile [RECOMMENDED] | 440×280 | 24-bit PNG (no alpha) | ✅ Ready | `promo/tile-440x280.png` |
+| Marquee Promo Tile | 1400×560 | 24-bit PNG (no alpha) | ✅ Ready | `promo/marquee-1400x560.png` |
 
-### Screenshot Notes
-- Screenshot 1: Split-view comparison of Gmail with custom company logo vs cloaked with generic Google Workspace logo.
-- Screenshot 2: Jira Cloud board demonstrating replaced custom instance logo, cloaked tenant breadcrumb, and sanitized tab title.
-- Screenshot 3: Modern BrandCloak popup interface displaying active stealth status, style switchers, and platform toggles.
+### Screenshot & Tile Details
+- **Screenshot 1 (Google Workspace)**: Gmail interface highlighting stock logo substitution, sanitized browser tab title (`Inbox (3) - Gmail`), cloaked enterprise email domains, and protected Google Account switcher card.
+- **Screenshot 2 (Jira Cloud)**: Atlassian Jira Cloud board displaying stock Jira Compass icon, masked corporate site title, cloaked project sidebar, and sanitized tab title.
+- **Screenshot 3 (Control Suite)**: Centered high-resolution BrandCloak popup interface highlighting Cloak Style switcher (Stock Logo, Frosted Blur, Hidden), Master Stealth toggle, custom brand input, and hotkey (`Alt + Shift + S`).
+- **Screenshot 4 (Nominated Brand Cloaking)**: Email thread demonstrating real-time TreeWalker detection and frosted blur masking over confidential company names, client domains, and project codenames.
+- **Screenshot 5 (Privacy Architecture)**: Feature cards detailing zero external network requests, minimal Manifest V3 permissions (`storage` only), and declarative zero-flicker CSS injection.
+- **Small Promo Tile (440×280)**: High-impact dark canvas with glowing BrandCloak shield emblem, headline, platform tags, and 100% On-Device badge.
+- **Marquee Promo Tile (1400×560)**: Featured store carousel banner with widescreen typography, shield emblem, key value propositions, and floating perspectives of cloaked Gmail & Jira.
 
 ## Permissions Justification
 

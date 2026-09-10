@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const gmailTabTitle = document.getElementById('gmailTabTitle');
   const jiraTabTitle = document.getElementById('jiraTabTitle');
 
-  const rawGmailTitle = "Inbox (3) - dan@goget.com.au - Gmail";
-  const rawJiraTitle = "[PAY-4029] Encrypt transaction headers - GoGet Jira";
+  const rawGmailTitle = "Inbox (3) - dan@acmecorp.com - Gmail";
+  const rawJiraTitle = "[PAY-4029] Encrypt transaction headers - Acme Jira";
 
   function updateMockState() {
     const enabled = mockStealthToggle.checked;

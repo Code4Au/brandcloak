@@ -1,79 +1,165 @@
-# BrandCloak — Commuter Privacy Chrome Extension
+<p align="center">
+  <img src="icons/icon.svg" width="96" height="96" alt="BrandCloak Logo" />
+</p>
 
-> **Shield corporate identity and organization branding on Google Workspace & Jira when working in public spaces (trains, flights, cafes, co-working spaces).**
+<h1 align="center">BrandCloak</h1>
 
-BrandCloak prevents "shoulder surfers" and stickybeakers from easily identifying your employer, client, or company by automatically masking and replacing custom corporate logos and tenant identifiers on common enterprise SaaS platforms.
+<p align="center">
+  <strong>Stealth Commuter Privacy for Google Workspace & Atlassian Jira</strong><br />
+  <em>Shield corporate identity, client names, and organization logos from shoulder surfers in public spaces.</em>
+</p>
 
----
-
-## Key Features
-
-1. **Inconspicuous "Stock Logo" Cloaking (Recommended)**
-   - Replaces custom corporate logos with standard, authentic generic SaaS icons (Multicolor Google "G" / Gmail envelope & Jira Compass).
-   - Casual onlookers glance at your screen and only see a completely normal Google or Jira window—attracting zero suspicion.
-2. **Alternative Cloak Modes**
-   - **Frosted Blur:** Smooth frosted glass blur over corporate logos and tenant names.
-   - **Hidden:** Completely collapses the branding elements.
-3. **Tab Title Sanitizer**
-   - Strips sensitive organization names, email addresses, and tenant tags from browser tabs (e.g. `Inbox (3) - dan@acmecorp.com - Gmail` becomes `Inbox (3) - Gmail`).
-4. **Tenant & Workspace Badge Masking**
-   - Masks organization badges in account switchers, navigation headers, and breadcrumbs.
-5. **Instant Keyboard Toggle**
-   - Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (or <kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on Mac) to toggle Stealth Mode instantly on the fly.
-6. **Zero-Flicker Injection**
-   - Injected declaratively at `document_start` to prevent any flash of corporate logos during page load.
-7. **100% On-Device Privacy**
-   - Zero telemetry, zero analytics, zero external network requests.
+<p align="center">
+  <a href="#installation"><img src="https://img.shields.io/badge/Chrome_Web_Store-Coming_Soon-blue?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Web Store - Coming Soon" /></a>
+  <img src="https://img.shields.io/badge/Manifest-V3-10b981?style=flat-square" alt="Manifest V3" />
+  <img src="https://img.shields.io/badge/Privacy-100%25_On--Device-0284c7?style=flat-square" alt="100% On-Device" />
+  <img src="https://img.shields.io/badge/Telemetry-Zero-10b981?style=flat-square" alt="Zero Telemetry" />
+  <img src="https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square" alt="License MIT" />
+</p>
 
 ---
 
-## How to Install in Google Chrome
+> [!NOTE]
+> **Chrome Web Store Listing Coming Soon!**  
+> BrandCloak is currently undergoing review for the Chrome Web Store. In the meantime, you can install and use it in seconds via **Developer Mode** below.
 
-1. Clone or download this repository to your computer:
+---
+
+## 🎬 Demo
+
+<p align="center">
+  <img src="assets/demo.gif" alt="BrandCloak Live Demonstration: Frosted Blur and Custom Brand Cloaking" width="100%" style="max-width: 880px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+</p>
+<p align="center"><em>Toggle Stealth Mode on the fly with <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to instantly obscure enterprise logos and nominated brand keywords.</em></p>
+
+---
+
+## 🛡️ Why BrandCloak?
+
+When working on commuter trains, flights, cafes, or co-working spaces, casual onlookers and "shoulder surfers" can easily glance at your screen and identify your employer, company, or high-profile clients from ten feet away.
+
+Enterprise SaaS tools routinely display:
+- **High-contrast company logos** in the top navigation header.
+- **Corporate tenant badges** (`Managed by yourcompany.com`) in account switchers.
+- **Organization names and emails** in browser tab titles (visible to anyone walking behind you).
+- **Client & company brand names** across email threads, subject lines, search results, and Jira ticket boards.
+
+**BrandCloak** solves this by discreetly masking and transforming corporate identifiers into standard consumer SaaS appearances—letting you work productively in public with total peace of mind.
+
+---
+
+## ✨ Cloaking Modes
+
+| Style | Appearance | Best For |
+|---|---|---|
+| **🛡️ Stock Logo (Recommended)** | Replaces custom company logos with authentic consumer SaaS icons (Multicolor Google "G" / Jira Compass). | **Maximum Discretion.** Glancing at your screen looks like normal personal Gmail/Jira—draws zero suspicion. |
+| **🌫️ Frosted Blur** | Applies a soft, glassmorphic frosted blur over corporate logos, tenant badges, and nominated keywords. | **Visual Privacy.** Obscures sensitive names while preserving the structural layout of your workspace. |
+| **👁️‍🗨️ Hidden** | Completely collapses the custom branding containers and tenant badges. | **Minimalist.** Eliminates enterprise branding blocks entirely. |
+
+---
+
+## 🚀 Key Features
+
+- **Enterprise Logo Masking**: Replaces top-right Google Workspace corporate logos and Jira Cloud site titles with clean stock equivalents.
+- **Nominated Brand Keyword Cloaking**: Specify custom brand keywords (e.g. `Acme`, `Contoso`, `InternalProject`) to automatically blur or hide them across email subjects, search results, body snippets, and Jira tickets.
+- **Smart Boundary Matching**: Flexibly handles alphanumeric spacing and word variations (e.g. entering `acme` seamlessly covers `Acme`, `Acme Corp`, `acme-corp`, and `dan@acmecorp.com`).
+- **Tab Title Sanitizer**: Dynamically strips organization names, corporate emails, and tenant tags from browser tabs (`Inbox (3) - dan@company.com - Gmail` $\rightarrow$ `Inbox (3) - Gmail`).
+- **Account Switcher & Badge Protection**: Obscures enterprise `Managed by` badges and non-Gmail corporate addresses in account popups.
+- **Instant Hotkey**: Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (or <kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on macOS) to toggle Stealth Mode instantly whenever someone sits down next to you.
+- **Zero-Flicker Injection**: Declarative styling injected at `document_start` prevents logos from flashing during initial page load.
+
+---
+
+## 🌐 Supported Platforms
+
+| Platform | Protected Surfaces |
+|---|---|
+| **Google Workspace** | Gmail, Google Drive, Google Docs, Google Sheets, Google Slides, Google Calendar, Google Meet, Google Chat, Google Admin Console, Google Accounts Switcher |
+| **Atlassian Cloud** | Jira Software, Jira Service Management, Jira Work Management, Kanban & Scrum Boards, Backlogs, Navigation Header & Breadcrumbs |
+
+---
+
+## 📦 Installation
+
+### Option 1: Chrome Web Store *(Coming Soon)*
+The official Chrome Web Store package is currently in review. Once live, you will be able to install BrandCloak with a single click.
+
+### Option 2: Install via Developer Mode (Manual)
+
+1. **Clone or download this repository**:
    ```bash
    git clone https://github.com/Code4Au/brandcloak.git
+   cd brandcloak
    ```
-2. Open Google Chrome and navigate to:
-   ```text
-   chrome://extensions
-   ```
-3. Enable **Developer mode** using the toggle in the top-right corner.
-4. Click the **Load unpacked** button in the top-left corner.
-5. Select the project folder:
-   ```text
-   /Users/danmiles/Code/browser-extension-obsfucate-branding
-   ```
-6. The **BrandCloak** extension icon will now appear in your browser toolbar!
+   *(Or click **Code $\rightarrow$ Download ZIP** on GitHub and extract it).*
+
+2. **Open the Chrome Extensions manager**:
+   - In Google Chrome, go to `chrome://extensions` (or open **Menu $\rightarrow$ Extensions $\rightarrow$ Manage Extensions**).
+
+3. **Enable Developer Mode**:
+   - Turn on the **Developer mode** toggle in the top-right corner.
+
+4. **Load the extension**:
+   - Click the **Load unpacked** button in the top-left corner.
+   - Select the cloned `brandcloak` directory.
+
+5. **Pin & Use**:
+   - Click the puzzle icon in Chrome's toolbar and pin **BrandCloak**.
+   - Click the BrandCloak shield icon to configure your cloaking style and nominated brand keywords.
 
 ---
 
-## Interactive Testbed
+## 🔒 Privacy & Security Guarantee
 
-To preview and verify the cloaking mechanisms without logging into corporate accounts:
-1. Open [`test/testbed.html`](file:///Users/danmiles/Code/browser-extension-obsfucate-branding/test/testbed.html) in Chrome.
-2. Use the top toolbar to switch between **Stock Logo**, **Frosted Blur**, and **Hidden** modes, or toggle individual platforms to see real-time updates.
+BrandCloak is built with a strict privacy-first philosophy:
+
+- **100% On-Device**: All DOM manipulation, regex evaluation, and title sanitization happens purely inside your local browser tab.
+- **Zero Remote Requests**: No data, telemetry, analytics, or browsing activity is ever logged, collected, or transmitted.
+- **Minimal Permissions**: Uses only the `storage` permission to save your preferences locally. No tabs permission, no history access, and no remote code execution.
 
 ---
 
-## Project Structure
+## 🧪 Interactive Testbed
+
+To preview and verify all cloaking modes locally without needing to log in to corporate accounts:
+
+1. Open [`test/testbed.html`](test/testbed.html) in your browser.
+2. Toggle **Master Stealth**, switch between **Stock Logo**, **Frosted Blur**, and **Hidden** modes, or test custom brand keyword inputs in real time.
+
+---
+
+## 🛠️ Project Structure
 
 ```
-├── manifest.json                  # Manifest V3 configuration with scoped host permissions
-├── CHROMEWEBSTORE.md              # Chrome Web Store listing, justifications & privacy policy
-├── icons/                         # 16, 32, 48, and 128px extension icons
-├── popup/
-│   ├── popup.html                 # Sleek dark-mode extension popup
-│   ├── popup.css                  # Modern styling & micro-animations
-│   └── popup.js                   # Popup state handling and live tab broadcast
-├── content/
-│   ├── cloak-styles.css           # Injected CSS for zero-flicker cloaking
-│   ├── common-utils.js            # Shared SVG vectors, observer utilities, and storage sync
-│   ├── cloak-google.js            # Google Workspace cloaking engine (Gmail, Drive, Docs)
-│   └── cloak-jira.js              # Atlassian Jira Cloud cloaking engine
-├── background/
-│   └── service-worker.js          # Background service worker, badge updates & hotkeys
-└── test/
-    ├── testbed.html               # Interactive verification suite
+brandcloak/
+├── manifest.json              # Manifest V3 extension configuration
+├── icons/                     # BrandCloak shield vectors & extension icons
+│   ├── icon.svg               # Master vector asset
+│   ├── icon-128.png           # Chrome Web Store & management icon
+│   ├── icon-48.png            # Extensions card icon
+│   ├── icon-32.png            # Retina toolbar icon
+│   └── icon-16.png            # Standard toolbar favicon
+├── popup/                     # Dark-mode extension popup UI
+│   ├── popup.html
+│   ├── popup.css
+│   └── popup.js
+├── content/                   # Content scripts & cloaking engines
+│   ├── cloak-styles.css       # Zero-flicker CSS rules
+│   ├── common-utils.js        # Shared SVG icons, regex caching, & title sanitizer
+│   ├── cloak-google.js        # Google Workspace engine (Gmail, Drive, Docs)
+│   └── cloak-jira.js          # Atlassian Jira Cloud engine
+├── background/                # Service worker & hotkey management
+│   └── service-worker.js
+├── assets/                    # Public repository visual assets
+│   └── demo.gif               # Animated showcase demonstration
+└── test/                      # Local offline testbed & simulation suite
+    ├── testbed.html
     ├── testbed.css
     └── testbed.js
 ```
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
