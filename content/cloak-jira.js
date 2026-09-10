@@ -98,7 +98,7 @@
       }
     }
 
-    // 2. Custom Brand Keywords matching across entire Jira UI (sidebar, project name, breadcrumbs, headers, etc.)
+    // 2. Custom Brand Keywords matching across Jira UI (boards, tickets, summaries, sidebar, headers, etc.)
     if (document.body) {
       const brandElements = utils.findCustomBrandElements(document.body);
       brandElements.forEach(el => results.add(el));
@@ -272,6 +272,7 @@
   // Throttled scheduler for dynamic SPA changes
   let timeoutId = null;
   function scheduleCloak() {
+    if (!isJiraTargetEnabled()) return;
     if (timeoutId) return;
     timeoutId = setTimeout(() => {
       timeoutId = null;

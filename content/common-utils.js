@@ -39,6 +39,43 @@
     customBrands: ''
   };
 
+  // Pre-compiled keyword caches for high-performance zero-allocation matching
+  let cachedKeywords = [];
+  let cachedBrandRegex = null;
+  let cachedTitleScrubbers = [];
+
+  function updateBrandCache() {
+    const raw = currentSettings.customBrands || '';
+    cachedKeywords = raw
+      .split(',')
+      .map(k => k.trim())
+      .filter(k => k.length > 0);
+
+    if (cachedKeywords.length === 0) {
+      cachedBrandRegex = null;
+      cachedTitleScrubbers = [];
+      return;
+    }
+
+    const patternParts = cachedKeywords.map(k => {
+      let p = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      p = p.replace(/\s+/g, '[\\s-_]*');
+      p = p.replace(/([a-zA-Z])(\d)/g, '$1[\\s-_]*$2')
+           .replace(/(\d)([a-zA-Z])/g, '$1[\\s-_]*$2');
+      p = p.replace(/([a-z])([A-Z])/g, '$1[\\s-_]*$2');
+      return p;
+    });
+
+    cachedBrandRegex = new RegExp(patternParts.join('|'), 'i');
+
+    cachedTitleScrubbers = patternParts.map(esc => ({
+      email: new RegExp(`\\s*[-|·•/:]?\\s*[^\\s@]+@(?:[^\\s@]*\\.)?${esc}(?:\\.[a-z.]{2,})?\\b\\s*[-|·•/:]?\\s*`, 'gi'),
+      jira: new RegExp(`\\s*[-|·•/:]?\\s*${esc}\\s+Jira\\b`, 'gi'),
+      word: new RegExp(`\\s*[-|·•/:]?\\s*\\b${esc}\\b\\s*[-|·•/:]?\\s*`, 'gi'),
+      raw: new RegExp(`\\s*[-|·•/:]?\\s*${esc}\\s*[-|·•/:]?\\s*`, 'gi')
+    }));
+  }
+
   // Apply root attributes to documentElement so CSS rules match immediately
   function applyRootAttributes(settings) {
     const root = document.documentElement;
@@ -50,10 +87,12 @@
     root.setAttribute('data-brandcloak-jira', String(settings.jiraEnabled));
   }
 
-  // Pre-initialize root attribute before DOM ready to avoid any flicker
+  // Pre-initialize root attribute and brand cache before DOM ready
+  updateBrandCache();
   applyRootAttributes(currentSettings);
 
   function notifySettingsChanged() {
+    updateBrandCache();
     applyRootAttributes(currentSettings);
     window.dispatchEvent(new CustomEvent('BrandCloakSettingsUpdated', { detail: currentSettings }));
   }
@@ -64,6 +103,7 @@
     storageArea.get(currentSettings, (items) => {
       if (items) {
         currentSettings = { ...currentSettings, ...items };
+        updateBrandCache();
         applyRootAttributes(currentSettings);
         window.dispatchEvent(new CustomEvent('BrandCloakSettingsLoaded', { detail: currentSettings }));
       }
@@ -124,33 +164,21 @@
     }
   }
 
-  // Custom Brand Keywords matching & scrubbing
+  // Custom Brand Keywords matching & scrubbing (O(1) cached RegExp)
   function getCustomBrandKeywords() {
-    const raw = currentSettings.customBrands || '';
-    return raw
-      .split(',')
-      .map(k => k.trim())
-      .filter(k => k.length > 0);
+    return cachedKeywords;
   }
 
   function cleanCustomBrandsFromTitle(title) {
-    if (!title) return title;
-    const keywords = getCustomBrandKeywords();
-    if (keywords.length === 0) return title;
+    if (!title || cachedTitleScrubbers.length === 0) return title;
 
     let cleaned = title;
-    for (const kw of keywords) {
-      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-      // 1. If keyword is part of an email in title (e.g. "dan@goget.com.au" or "admin@goget.com"), strip entire email
-      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*[^\\s@]+@(?:[^\\s@]*\\.)?${escaped}\\b\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
-
-      // 2. Match brand keyword followed immediately by Jira, e.g. " - GoGet Jira" -> " - Jira"
-      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*${escaped}\\s+Jira\\b`, 'gi'), ' - Jira');
-
-      // 3. Match delimited brand keyword, e.g. " - GoGet - " or " - GoGet" or "GoGet - "
-      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*\\b${escaped}\\b\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
-      cleaned = cleaned.replace(new RegExp(`\\s*[-|·•/:]?\\s*${escaped}\\s*[-|·•/:]?\\s*`, 'gi'), ' - ');
+    for (let i = 0; i < cachedTitleScrubbers.length; i++) {
+      const s = cachedTitleScrubbers[i];
+      cleaned = cleaned.replace(s.email, ' - ');
+      cleaned = cleaned.replace(s.jira, ' - Jira');
+      cleaned = cleaned.replace(s.word, ' - ');
+      cleaned = cleaned.replace(s.raw, ' - ');
     }
 
     // Clean up duplicate separators and whitespace
@@ -165,72 +193,87 @@
   }
 
   function matchesCustomBrand(text) {
-    if (!text || typeof text !== 'string') return false;
-    const keywords = getCustomBrandKeywords();
-    if (keywords.length === 0) return false;
-    const lower = text.toLowerCase();
-    return keywords.some(kw => lower.includes(kw.toLowerCase()));
+    if (!text || typeof text !== 'string' || !cachedBrandRegex) return false;
+    return cachedBrandRegex.test(text);
   }
 
-  // Universal TreeWalker to accurately find specific text-bearing elements matching custom brand keywords
-  function findCustomBrandElements(root) {
-    if (!root) root = document.body;
-    if (!root) return [];
+  // High-performance TreeWalker: accurately targets text elements matching custom brands
+  // Supports a single root or an array of specific container roots
+  function findCustomBrandElements(roots) {
+    if (!cachedBrandRegex) return [];
 
-    const keywords = getCustomBrandKeywords();
-    if (keywords.length === 0) return [];
+    const rootList = Array.isArray(roots)
+      ? roots.filter(Boolean)
+      : [roots || document.body].filter(Boolean);
+
+    if (rootList.length === 0) return [];
 
     const elements = new Set();
 
-    // 1. Check text nodes via TreeWalker
-    try {
-      const walker = document.createTreeWalker(
-        root,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode(node) {
-            if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
-            const val = node.nodeValue.trim();
-            if (val.length === 0) return NodeFilter.FILTER_REJECT;
+    for (const root of rootList) {
+      try {
+        const walker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode(node) {
+              if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+              const val = node.nodeValue.trim();
+              if (val.length === 0) return NodeFilter.FILTER_REJECT;
 
-            const parent = node.parentElement;
-            if (!parent) return NodeFilter.FILTER_REJECT;
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
 
-            // Don't blur code inputs or active editors
+              // Don't blur code inputs or active editors
+              const tag = parent.tagName.toLowerCase();
+              if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'input' || tag === 'textarea') {
+                return NodeFilter.FILTER_REJECT;
+              }
+
+              if (parent.isContentEditable || parent.closest('[contenteditable="true"], .ProseMirror')) {
+                return NodeFilter.FILTER_REJECT;
+              }
+
+              // Fast native RegExp test (sub-microsecond)
+              if (cachedBrandRegex.test(val)) {
+                return NodeFilter.FILTER_ACCEPT;
+              }
+              return NodeFilter.FILTER_REJECT;
+            }
+          }
+        );
+
+        let textNode;
+        while ((textNode = walker.nextNode())) {
+          const parent = textNode.parentElement;
+          if (parent) {
             const tag = parent.tagName.toLowerCase();
-            if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'input' || tag === 'textarea') {
-              return NodeFilter.FILTER_REJECT;
+            if (
+              parent !== document.body &&
+              parent !== document.documentElement &&
+              !['html', 'body', 'main', 'table', 'tbody', 'thead', 'tr', 'form'].includes(tag) &&
+              parent.getAttribute('role') !== 'main' &&
+              parent.children.length <= 5
+            ) {
+              elements.add(parent);
             }
-
-            if (parent.isContentEditable || parent.closest('[contenteditable="true"], .ProseMirror')) {
-              return NodeFilter.FILTER_REJECT;
-            }
-
-            if (matchesCustomBrand(val)) {
-              return NodeFilter.FILTER_ACCEPT;
-            }
-            return NodeFilter.FILTER_REJECT;
           }
         }
-      );
-
-      let textNode;
-      while ((textNode = walker.nextNode())) {
-        const parent = textNode.parentElement;
-        if (parent) {
-          elements.add(parent);
-        }
+      } catch (e) {
+        console.warn('[BrandCloak] TreeWalker error:', e);
       }
-    } catch (e) {
-      console.warn('[BrandCloak] TreeWalker error:', e);
-    }
 
-    // 2. Also check elements with aria-label or title matching keywords
-    for (const kw of keywords) {
+      // Fast check for aria-label or title matching keywords in scoped container
       try {
-        root.querySelectorAll(`[aria-label*="${kw}" i], [title*="${kw}" i]`).forEach(el => {
+        root.querySelectorAll('[aria-label], [title]').forEach(el => {
           if (el.children.length <= 2 && !el.closest('[contenteditable="true"]')) {
-            elements.add(el);
+            const tag = el.tagName.toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'body' || tag === 'html') return;
+            const aria = el.getAttribute('aria-label') || '';
+            const title = el.getAttribute('title') || '';
+            if (cachedBrandRegex.test(aria) || cachedBrandRegex.test(title)) {
+              elements.add(el);
+            }
           }
         });
       } catch (e) {}

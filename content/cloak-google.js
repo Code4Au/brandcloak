@@ -82,37 +82,37 @@
       // 2. Search images in right section of header for custom branding
       const imgs = header.querySelectorAll('img');
       imgs.forEach(img => {
-        if (isStandardGoogleProductLogo(img)) {
+        if (img.hasAttribute('data-brandcloak-google-logo') || isStandardGoogleProductLogo(img)) {
           return;
         }
 
-        const rect = img.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(img);
+        // Fast attribute check first (avoid layout thrashing)
+        const hasLogoUrl = /googleusercontent\.com|cpanel|\/images\/logo|gstatic\.com\/a\//i.test(img.src);
+        const hasLogoAlt = /logo|brand|custom/i.test(img.alt || '') || /logo|brand/i.test(img.title || '');
+        const isRectByNatural = img.naturalWidth > 0 && img.naturalWidth > img.naturalHeight * 1.15;
 
-        // Skip user profile avatars (circular or small square avatar)
-        const isCircularAvatar = computedStyle.borderRadius === '50%' ||
-          (rect.width > 0 && Math.abs(rect.width - rect.height) <= 4 && rect.width <= 44 && !img.src.includes('logo'));
+        if (!hasLogoUrl && !hasLogoAlt && !isRectByNatural) {
+          if (img.offsetWidth <= 30 || img.offsetWidth <= img.offsetHeight * 1.15) {
+            return;
+          }
+        }
+
+        // Only measure geometry when candidate passed initial filter
+        const rect = img.getBoundingClientRect();
+        if (rect.left <= window.innerWidth * 0.4) {
+          return;
+        }
+
+        // Skip circular avatars
+        const isCircularAvatar = (rect.width > 0 && Math.abs(rect.width - rect.height) <= 4 && rect.width <= 44 && !hasLogoUrl);
         if (isCircularAvatar) {
           return;
         }
 
-        // Must be strictly on the right section of the screen
-        const isRightSide = rect.left > window.innerWidth * 0.4;
-        if (!isRightSide) {
-          return;
-        }
-
-        const isRectangular = (img.naturalWidth > 0 && img.naturalWidth > img.naturalHeight * 1.15) ||
-          (rect.width > rect.height * 1.15 && rect.width > 30);
-        const hasLogoUrl = /googleusercontent\.com|cpanel|\/images\/logo|gstatic\.com\/a\//i.test(img.src);
-        const hasLogoAlt = /logo|brand|custom/i.test(img.alt || '') || /logo|brand/i.test(img.title || '');
-
-        if (isRectangular || hasLogoUrl || hasLogoAlt) {
-          targets.push({
-            img,
-            pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.closest('.gb_0c') || img.closest('.gb_1c') || img.parentElement
-          });
-        }
+        targets.push({
+          img,
+          pillContainer: img.closest('.gb_db') || img.closest('.gb_fb') || img.closest('.gb_0c') || img.closest('.gb_1c') || img.parentElement
+        });
       });
     });
 
@@ -153,57 +153,62 @@
       }
     }
 
-    // 2. Custom Brand Keywords matching anywhere on page/frame via TreeWalker
+    // 2. Custom Brand Keywords matching across the entire page (email lists, search results, bodies, headers)
     if (document.body) {
       const brandElements = utils.findCustomBrandElements(document.body);
       brandElements.forEach(el => badges.add(el));
     }
 
-    // 3. Scan for "managed by", "admin console", and corporate email addresses
-    if (settings.maskTenantBadges && document.body) {
+    // 3. Scan for "managed by", "admin console", and corporate email addresses in scoped containers
+    // (Scoped to headers/account switchers to avoid false positives on third-party emails in inbox)
+    if (settings.maskTenantBadges) {
       const isInsideFrame = window.self !== window.top || window.location.hostname === 'accounts.google.com';
-      // In the account switcher popup or header, search text nodes
-      const searchRoot = isInsideFrame ? document.body : (document.getElementById('gb') || document.querySelector('header') || document.querySelector('[role="dialog"]') || document.body);
+      const scopedContainers = isInsideFrame
+        ? [document.body]
+        : Array.from(document.querySelectorAll('#gb, header, [role="banner"], [role="dialog"], [aria-modal="true"], [role="navigation"], aside, .gb_4a, .gb_1d'));
 
-      try {
-        const textWalker = document.createTreeWalker(
-          searchRoot,
-          NodeFilter.SHOW_TEXT,
-          {
-            acceptNode(node) {
-              if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
-              const val = node.nodeValue.trim();
-              if (!val || val.length > 100) return NodeFilter.FILTER_REJECT;
+      const searchRoots = scopedContainers.length > 0 ? scopedContainers : [document.body];
+      for (const root of searchRoots) {
+        try {
+          const textWalker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+                const val = node.nodeValue.trim();
+                if (!val || val.length > 100) return NodeFilter.FILTER_REJECT;
 
-              const parent = node.parentElement;
-              if (!parent) return NodeFilter.FILTER_REJECT;
-              const tag = parent.tagName.toLowerCase();
-              if (tag === 'script' || tag === 'style' || tag === 'input' || tag === 'textarea') {
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                const tag = parent.tagName.toLowerCase();
+                if (tag === 'script' || tag === 'style' || tag === 'input' || tag === 'textarea') {
+                  return NodeFilter.FILTER_REJECT;
+                }
+
+                // "Managed by..."
+                if (/managed\s+by/i.test(val)) return NodeFilter.FILTER_ACCEPT;
+                // "Admin console"
+                if (/admin\s+console/i.test(val)) return NodeFilter.FILTER_ACCEPT;
+                // Corporate email (non-gmail) in account switcher or header
+                if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !val.endsWith('@gmail.com') && !val.endsWith('@googlemail.com')) {
+                  return NodeFilter.FILTER_ACCEPT;
+                }
+
                 return NodeFilter.FILTER_REJECT;
               }
+            }
+          );
 
-              // "Managed by..."
-              if (/managed\s+by/i.test(val)) return NodeFilter.FILTER_ACCEPT;
-              // "Admin console"
-              if (/admin\s+console/i.test(val)) return NodeFilter.FILTER_ACCEPT;
-              // Corporate email (non-gmail) in account switcher or header
-              if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) && !val.endsWith('@gmail.com') && !val.endsWith('@googlemail.com')) {
-                return NodeFilter.FILTER_ACCEPT;
-              }
-
-              return NodeFilter.FILTER_REJECT;
+          let node;
+          while ((node = textWalker.nextNode())) {
+            if (node.parentElement) {
+              badges.add(node.parentElement);
             }
           }
-        );
-
-        let node;
-        while ((node = textWalker.nextNode())) {
-          if (node.parentElement) {
-            badges.add(node.parentElement);
-          }
+        } catch (e) {
+          console.warn('[BrandCloak] TreeWalker error in Google badges:', e);
         }
-      } catch (e) {
-        console.warn('[BrandCloak] TreeWalker error in Google badges:', e);
       }
     }
 
@@ -338,6 +343,7 @@
   // Throttle observer calls for smooth performance
   let timeoutId = null;
   function scheduleCloak() {
+    if (!isGoogleTargetEnabled()) return;
     if (timeoutId) return;
     timeoutId = setTimeout(() => {
       timeoutId = null;
