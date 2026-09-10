@@ -7,7 +7,12 @@ html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandc
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-google-pill="true"],
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_db,
 html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] .gb_fb,
-html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"] {
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"] [data-brandcloak-org-text="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"],
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--container"] a img,
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="hidden"][data-brandcloak-jira="true"] a[href="/jira"] img {
   display: none !important;
 }
 
@@ -15,7 +20,14 @@ html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .brandcloak-ta
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-custom-logo],
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-google-logo="true"],
 html[data-brandcloak-active="true"][data-brandcloak-style="blur"] .gb_fb img,
-html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"] {
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandcloak-org-text="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"],
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--container"] a img,
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="blur"][data-brandcloak-jira="true"] a[href="/jira"] img {
   filter: blur(7px) grayscale(30%) !important;
   opacity: 0.8 !important;
   user-select: none !important;
@@ -46,15 +58,20 @@ html[data-brandcloak-active="true"][data-brandcloak-style="blur"] [data-brandclo
 }
 
 /* When in generic mode, hide the original custom branding element that has been replaced */
-html[data-brandcloak-active="true"][data-brandcloak-style="generic"] [data-brandcloak-replaced="true"] {
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"] [data-brandcloak-replaced="true"],
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"] {
   display: none !important;
 }
 
-/* Jira specific declarative rules */
-html[data-brandcloak-active="true"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
-html[data-brandcloak-active="true"][data-brandcloak-jira="true"] header a[href="/jira"] img,
-html[data-brandcloak-active="true"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--header"] [data-testid*="logo"] img {
-  opacity: 0; /* Hidden while script replaces with stock SVG */
+/* Jira generic mode pre-script flash prevention */
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--logo"],
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--product-home--icon"],
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid*="product-home"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--logo"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] a[href="/jira"] img,
+html[data-brandcloak-active="true"][data-brandcloak-style="generic"][data-brandcloak-jira="true"] [data-testid="atlassian-navigation--header"] [data-testid*="logo"] img {
+  opacity: 0;
 }
 
 /* When hidden style, hide Jira instance name element if present */

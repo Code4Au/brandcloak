@@ -21,7 +21,7 @@
       </svg>
     `,
     jiraWordmark: `
-      <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 17px; color: #172B4D; margin-left: 8px; letter-spacing: -0.2px;">Jira</span>
+      <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 17px; color: var(--ds-text, currentColor); margin-left: 8px; letter-spacing: -0.2px;">Jira</span>
     `,
     googleWorkspaceWordmark: `
       <span style="font-family: 'Google Sans', Roboto, Arial, sans-serif; font-size: 15px; color: #5f6368; margin-left: 6px; font-weight: 500;">Google</span>

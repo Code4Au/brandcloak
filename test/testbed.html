@@ -138,17 +138,25 @@
           </div>
         </div>
 
-        <header class="mock-jira-header" data-testid="atlassian-navigation--header">
+        <header class="mock-jira-header" data-testid="atlassian-navigation--header" style="background: #1d2125;">
           <nav class="jira-nav">
-            <!-- Jira custom logo and instance name -->
-            <div class="jira-logo-group" data-testid="atlassian-navigation--logo">
-              <!-- Custom Corporate Jira Graphic -->
-              <div class="mock-custom-brand-logo jira-custom" data-brandcloak-custom-logo="true">
-                <span class="brand-acme-symbol" style="color: #0052cc;">⚡</span>
-                <span class="brand-acme-text">CODE 4</span>
-              </div>
-              <span class="jira-instance-title" data-testid="atlassian-navigation--site-title" data-brandcloak-org-text="true">Code 4 Jira</span>
+            <!-- Modern Atlassian Cloud Product Home Container (as observed in production) -->
+            <div class="jira-product-home-mock" data-testid="atlassian-navigation--product-home--container">
+              <a aria-label="Go to your Jira homepage" class="jira-home-link" href="/jira" target="_self" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <div>
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%230052cc'/%3E%3C/svg%3E" alt="Custom Jira icon" data-testid="atlassian-navigation--product-home--icon" width="20" height="20">
+                </div>
+                <div style="background: #ffffff; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center;">
+                  <!-- Simulating corporate tenant logo image (e.g. GoGet) -->
+                  <span data-testid="atlassian-navigation--product-home--logo" style="display: inline-flex; align-items: center;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='20' viewBox='0 0 60 20'%3E%3Ctext x='0' y='15' font-family='sans-serif' font-weight='bold' font-size='14' fill='%230052cc'%3Egoget%3C/text%3E%3C/svg%3E" alt="Jira homepage" data-testid="atlassian-navigation--product-home--logo" width="60" height="20">
+                  </span>
+                </div>
+              </a>
             </div>
+
+            <!-- Jira instance name or product title -->
+            <span class="jira-instance-title" data-testid="atlassian-navigation--site-title" data-brandcloak-org-text="true" style="color: #deebff; font-weight: 700; margin-left: 8px;">JIRA</span>
 
             <div class="jira-nav-links">
               <span class="nav-item">Your work</span>
