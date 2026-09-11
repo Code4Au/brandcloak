@@ -160,6 +160,12 @@ brandcloak/
 
 ---
 
+## 🤝 Contributing
+
+Contributions are always welcome! Whether you're reporting bugs, requesting support for additional SaaS platforms, or submitting code improvements, please read our [Contributing Guide](CONTRIBUTING.md) to get started.
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
