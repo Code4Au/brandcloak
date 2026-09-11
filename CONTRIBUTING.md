@@ -75,3 +75,9 @@ cd brandcloak
    ```
 4. Push your branch and open a Pull Request against `main`.
 5. Clearly describe what changed, why, and provide testing steps (with screenshots if altering UI).
+
+---
+
+## 📄 License
+
+By contributing to BrandCloak, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).
