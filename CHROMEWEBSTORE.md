@@ -1,6 +1,7 @@
 # Chrome Web Store Listing — BrandCloak - Stealth Commuter Privacy
 
-> Last Updated: 2026-09-10
+> Last Updated: 2026-09-16  
+> **Live Store URL**: https://chromewebstore.google.com/detail/brandcloak-stealth-commut/mbpgbglneplfmdgehncpdldfaeiimcee
 
 ## Store Listing
 

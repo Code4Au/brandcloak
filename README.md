@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="#installation"><img src="https://img.shields.io/badge/Chrome_Web_Store-Coming_Soon-blue?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Web Store - Coming Soon" /></a>
+  <a href="https://chromewebstore.google.com/detail/brandcloak-stealth-commut/mbpgbglneplfmdgehncpdldfaeiimcee"><img src="https://img.shields.io/badge/Chrome_Web_Store-Available_Now-4285F4?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Web Store" /></a>
   <img src="https://img.shields.io/badge/Manifest-V3-10b981?style=flat-square" alt="Manifest V3" />
   <img src="https://img.shields.io/badge/Privacy-100%25_On--Device-0284c7?style=flat-square" alt="100% On-Device" />
   <img src="https://img.shields.io/badge/Telemetry-Zero-10b981?style=flat-square" alt="Zero Telemetry" />
@@ -19,9 +19,9 @@
 
 ---
 
-> [!NOTE]
-> **Chrome Web Store Listing Coming Soon!**  
-> BrandCloak is currently undergoing review for the Chrome Web Store. In the meantime, you can install and use it in seconds via **Developer Mode** below.
+> [!TIP]
+> **Available now on the Chrome Web Store!**  
+> Install [BrandCloak from the Chrome Web Store](https://chromewebstore.google.com/detail/brandcloak-stealth-commut/mbpgbglneplfmdgehncpdldfaeiimcee) with a single click, or load it locally via **Developer Mode** below.
 
 ---
 
@@ -81,8 +81,11 @@ Enterprise SaaS tools routinely display:
 
 ## 📦 Installation
 
-### Option 1: Chrome Web Store *(Coming Soon)*
-The official Chrome Web Store package is currently in review. Once live, you will be able to install BrandCloak with a single click.
+### Option 1: Chrome Web Store (Recommended)
+
+Install BrandCloak directly with a single click from the official store:
+
+👉 **[BrandCloak on the Chrome Web Store](https://chromewebstore.google.com/detail/brandcloak-stealth-commut/mbpgbglneplfmdgehncpdldfaeiimcee)**
 
 ### Option 2: Install via Developer Mode (Manual)
 
